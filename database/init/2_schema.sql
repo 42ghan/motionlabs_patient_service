@@ -3,10 +3,10 @@ USE motionlabs;
 /* Create table */
 CREATE TABLE IF NOT EXISTS patients (
     id INT AUTO_INCREMENT PRIMARY KEY,
-		chart_number VARCHAR(32) DEFAULT NULL,
     name VARCHAR(16) NOT NULL,
-    resident_registration_number CHAR(15) NOT NULL,
     phone_number VARCHAR(32) NOT NULL,
+		chart_number VARCHAR(32) DEFAULT NULL,
+    resident_registration_number CHAR(15) NOT NULL,
     address VARCHAR(255) DEFAULT NULL,
 		memo VARCHAR(255) DEFAULT NULL,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
