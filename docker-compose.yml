@@ -4,7 +4,12 @@ services:
     container_name: mysql
     env_file: ./.env
     volumes:
-      - ./mysql_data:/var/lib/mysql
+      - mysql_data:/var/lib/mysql
+    configs:
+      - source: mysql_init
+        target: /docker-entrypoint-initdb.d
+      - source: mysql_config
+        target: /etc/mysql/conf.d/my.cnf
     ports:
       - 3307:3306
     healthcheck:
@@ -27,7 +32,7 @@ services:
   patient-service:
     image: patient-service
     build:
-      context: .
+      context: ./patient-service
     container_name: patient-service
     ports:
       - 3001:3000
@@ -38,3 +43,9 @@ services:
 
 volumes:
   mysql_data:
+
+configs:
+  mysql_init:
+    file: ./database/init
+  mysql_config:
+    file: ./database/config/my.cnf

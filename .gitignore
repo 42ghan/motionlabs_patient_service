@@ -135,5 +135,3 @@ dist
 .yarn/install-state.gz
 .pnp.*
 
-# MySQL data
-mysql_data/
