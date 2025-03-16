@@ -121,15 +121,7 @@ PatientsService
      - `docker compose logs` 실행 시 nestjs 서버 로그로 response time 확인 가능
    - http://localhost:3001/api 에서 Swagger 확인 가능 + 조회 API 테스트 가능
 
-4. Tear down
-
-   - 프로젝트 root 에서 tear_down.sh 실행
-
-   ```bash
-   bash ./tear_down.sh
-   ```
-
-5. 로컬에서 서버 실행
+4. 로컬에서 서버 실행
 
    - docker compose service 들이 실행 중인 상태에서 아래 스텝 순서대로 실행
    - patient-service/.env 에서 `MYSQL_URL` 로컬 테스트용으로 수정
@@ -146,6 +138,14 @@ PatientsService
 
    # 실행
    yarn run start
+   ```
+
+5. Tear down
+
+   - 프로젝트 root 에서 tear_down.sh 실행
+
+   ```bash
+   bash ./tear_down.sh
    ```
 
 ## API 문서
