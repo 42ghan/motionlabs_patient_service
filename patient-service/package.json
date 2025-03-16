@@ -9,18 +9,18 @@
     "node": ">=22.0.0"
   },
   "scripts": {
-    "build": "nest build",
-    "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
-    "start": "nest start",
-    "start:dev": "nest start --watch",
-    "start:debug": "nest start --debug --watch",
-    "start:prod": "node dist/main",
-    "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
-    "test": "jest",
-    "test:watch": "jest --watch",
-    "test:cov": "jest --coverage",
-    "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-    "test:e2e": "jest --config ./test/jest-e2e.json"
+    "build": "yarn nest build",
+    "format": "yarn prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
+    "start": "yarn nest start",
+    "start:dev": "yarn nest start --watch",
+    "start:debug": "yarn nest start --debug --watch",
+    "start:prod": "yarn node dist/main",
+    "lint": "yarn eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
+    "test": "yarn jest",
+    "test:watch": "yarn jest --watch",
+    "test:cov": "yarn jest --coverage",
+    "test:debug": "yarn node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
+    "test:e2e": "yarn jest --config ./test/jest-e2e.json"
   },
   "dependencies": {
     "@nestjs/common": "^11.0.11",
@@ -31,10 +31,13 @@
     "@nestjs/typeorm": "^11.0.0",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.1",
+    "luxon": "^3.5.0",
     "mysql2": "^3.13.0",
+    "nanoid": "3",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.2",
-    "typeorm": "^0.3.21"
+    "typeorm": "^0.3.21",
+    "xlsx": "^0.18.5"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.0",
@@ -44,8 +47,11 @@
     "@nestjs/testing": "^11.0.11",
     "@types/express": "^5.0.0",
     "@types/jest": "^29.5.14",
+    "@types/luxon": "^3.4.2",
+    "@types/multer": "^1.4.12",
     "@types/node": "^22.13.10",
     "@types/supertest": "^6.0.2",
+    "@types/xlsx": "^0.0.36",
     "@typescript-eslint/eslint-plugin": "^8.26.1",
     "@typescript-eslint/parser": "^8.26.1",
     "eslint": "^9.22.0",
