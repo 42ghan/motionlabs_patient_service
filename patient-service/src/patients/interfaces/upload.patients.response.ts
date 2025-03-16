@@ -20,7 +20,7 @@ export class UploadPatientsSuccessResponse {
   failedCount!: number;
 }
 
-export class UploadPatientsErrorResponse {
+export class UploadPatientsBadRequestErrorResponse {
   @ApiProperty({
     description: '파일 업로드 실패',
     example: false,
@@ -30,6 +30,20 @@ export class UploadPatientsErrorResponse {
   @ApiProperty({
     description: '실패 이유',
     example: '파일 크기가 너무 큽니다.',
+  })
+  message!: string;
+}
+
+export class UploadPatientsInternalServerErrorResponse {
+  @ApiProperty({
+    description: '파일 업로드 실패',
+    example: false,
+  })
+  success!: false;
+
+  @ApiProperty({
+    description: '실패 이유',
+    example: 'Internal Server Error',
   })
   message!: string;
 }

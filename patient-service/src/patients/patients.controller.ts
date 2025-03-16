@@ -4,6 +4,7 @@ import {
   HttpCode,
   ParseFilePipe,
   Post,
+  Query,
   UploadedFile,
   UseFilters,
   UseInterceptors,
@@ -16,15 +17,18 @@ import {
   ApiInternalServerErrorResponse,
   ApiOkResponse,
   ApiOperation,
+  ApiQuery,
 } from '@nestjs/swagger';
-
 import { UploadExceptionFilter } from './filters/upload-exception.filter';
-import {
-  UploadPatientsErrorResponse,
-  UploadPatientsSuccessResponse,
-} from './interfaces/upload.patients.response';
+import { PatientsListSuccessResponse } from './interfaces/list.patients.response';
 import { PatientsService } from './patients.service';
 import { uploadFilePipeValidators } from './pipes/validators';
+import {
+  UploadPatientsBadRequestErrorResponse,
+  UploadPatientsInternalServerErrorResponse,
+  UploadPatientsSuccessResponse,
+} from './interfaces/upload.patients.response';
+import { PatientsListQuery } from './interfaces/list.patiens.query';
 
 @Controller('patients')
 export class PatientsController {
@@ -38,13 +42,17 @@ export class PatientsController {
   })
   @ApiBadRequestResponse({
     description: '파일 업로드 실패',
-    type: UploadPatientsErrorResponse,
+    type: UploadPatientsBadRequestErrorResponse,
   })
   @ApiInternalServerErrorResponse({
     description: '서버 오류',
-    type: UploadPatientsErrorResponse,
+    type: UploadPatientsInternalServerErrorResponse,
   })
-  @ApiExtraModels(UploadPatientsSuccessResponse, UploadPatientsErrorResponse)
+  @ApiExtraModels(
+    UploadPatientsSuccessResponse,
+    UploadPatientsBadRequestErrorResponse,
+    UploadPatientsInternalServerErrorResponse,
+  )
   @HttpCode(200)
   @Post('upload')
   @UseFilters(UploadExceptionFilter)
@@ -62,8 +70,32 @@ export class PatientsController {
     });
   }
 
+  @ApiOperation({ summary: '환자 정보 조회' })
+  @ApiOkResponse({
+    description: '환자 정보 조회 성공',
+    type: PatientsListSuccessResponse,
+  })
+  @ApiBadRequestResponse({
+    description: '유효하지 않은 query parameter',
+  })
+  @ApiQuery({
+    name: 'page',
+    type: Number,
+    required: false,
+    default: 1,
+  })
+  @ApiQuery({
+    name: 'limit',
+    type: Number,
+    required: false,
+    default: 20,
+    maximum: 100,
+  })
+  @ApiExtraModels(PatientsListSuccessResponse)
   @Get()
-  findAll() {
-    return this.patientsService.findAll();
+  findWithPagination(@Query() query: PatientsListQuery) {
+    return this.patientsService.handleScanWithPagination({
+      ...query,
+    });
   }
 }

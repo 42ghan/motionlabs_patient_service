@@ -6,6 +6,7 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import { DateToMilliTransformer } from '../../entities/transformers/date-to-date-time.transformer';
+import { DateTime } from 'luxon';
 
 @Entity('patients')
 export class Patient {
@@ -62,12 +63,12 @@ export class Patient {
     update: false,
     transformer: new DateToMilliTransformer(),
   })
-  createdAt!: Date;
+  createdAt!: DateTime;
 
   @UpdateDateColumn({
     name: 'updated_at',
     type: 'timestamp',
     transformer: new DateToMilliTransformer(),
   })
-  updatedAt!: Date;
+  updatedAt!: DateTime;
 }

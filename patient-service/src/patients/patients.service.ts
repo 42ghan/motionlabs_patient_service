@@ -1,16 +1,15 @@
-import { Repository } from 'typeorm';
 import { Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
 import { BulkUpsertService } from './bulk-create/bulk-upsert.service';
-import { Patient } from './entities/patient.entity';
+import { PatientsListQuery } from './interfaces/list.patiens.query';
+import { PatientsListSuccessResponse } from './interfaces/list.patients.response';
 import { UploadPatientsSuccessResponse } from './interfaces/upload.patients.response';
+import { ScanService } from './scan/scan.service';
 
 @Injectable()
 export class PatientsService {
   constructor(
-    @InjectRepository(Patient)
-    private readonly patientRepository: Repository<Patient>,
     private readonly bulkUpsertService: BulkUpsertService,
+    private readonly scanService: ScanService,
   ) {}
 
   async handleUploadedFileToBulkCreate({
@@ -30,7 +29,9 @@ export class PatientsService {
     };
   }
 
-  findAll() {
-    return `This action returns all patients`;
+  async handleScanWithPagination(
+    params: PatientsListQuery,
+  ): Promise<PatientsListSuccessResponse> {
+    return this.scanService.scanWithPagination(params);
   }
 }
