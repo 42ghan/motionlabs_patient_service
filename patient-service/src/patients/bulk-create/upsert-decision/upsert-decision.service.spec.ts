@@ -261,6 +261,7 @@ describe('UpsertDecisionService', () => {
       expect(result.toInsertEntities).toHaveLength(0);
       expect(patientRepository.query).toHaveBeenCalledWith(
         expect.stringContaining('SELECT'),
+        expect.any(Array),
       );
     });
   });

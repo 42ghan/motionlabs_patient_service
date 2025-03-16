@@ -1,8 +1,22 @@
-import { Patient } from '../../entities/patient.entity';
-import { Repository } from 'typeorm';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { Patient } from '../../entities/patient.entity';
 import { ImportablePatientEntity } from '../record-validator/record-validator.service';
+
+export type InsertingPatientEntity = Pick<
+  Patient,
+  | 'name'
+  | 'phoneNumber'
+  | 'address'
+  | 'memo'
+  | 'chartNumber'
+  | 'residentRegistrationNumber'
+>;
+
+export type UpdatingPatientEntity = InsertingPatientEntity & {
+  id: number;
+};
 
 @Injectable()
 export class UpsertDecisionService {
@@ -16,8 +30,8 @@ export class UpsertDecisionService {
   }: {
     entitiesToUpsert: ImportablePatientEntity[];
   }): Promise<{
-    toUpdateEntities: Partial<Patient>[];
-    toInsertEntities: Partial<Patient>[];
+    toUpdateEntities: UpdatingPatientEntity[];
+    toInsertEntities: InsertingPatientEntity[];
   }> {
     const existingPatients = await this.findPatientsByNamesAndPhoneNumbers({
       nameAndPhoneNumberPairs: entitiesToUpsert.map((p) => ({
@@ -48,11 +62,11 @@ export class UpsertDecisionService {
     existingPatientsMap: Map<string, Patient[]>;
     entitiesToUpsert: ImportablePatientEntity[];
   }): {
-    toUpdateEntities: Partial<Patient>[];
-    toInsertEntities: Partial<Patient>[];
+    toUpdateEntities: UpdatingPatientEntity[];
+    toInsertEntities: InsertingPatientEntity[];
   } {
-    const toUpdateEntities: Partial<Patient>[] = [];
-    const toInsertEntities: Partial<Patient>[] = [];
+    const toUpdateEntities: UpdatingPatientEntity[] = [];
+    const toInsertEntities: InsertingPatientEntity[] = [];
     entitiesToUpsert.forEach((toUpsert) => {
       const patientsWithSameNameAndPhoneNumber = existingPatientsMap.get(
         `${toUpsert.name}${toUpsert.phoneNumber}`,
@@ -122,6 +136,12 @@ export class UpsertDecisionService {
       phoneNumber: string;
     }[];
   }): Promise<Patient[]> {
+    const placeholders = nameAndPhoneNumberPairs.map(() => `(?, ?)`).join(', ');
+
+    const params = nameAndPhoneNumberPairs.flatMap((p) => [
+      p.name,
+      p.phoneNumber,
+    ]);
     const rawPatients: {
       id: string;
       name: string;
@@ -130,13 +150,13 @@ export class UpsertDecisionService {
       resident_registration_number: string;
       address: string;
       memo: string;
-    }[] = await this.patientRepository.query(`
-    SELECT id, name, phone_number, chart_number, resident_registration_number, address, memo
+    }[] = await this.patientRepository.query(
+      `SELECT id, name, phone_number, chart_number, resident_registration_number, address, memo
     FROM patients
-    WHERE (name, phone_number) IN (${nameAndPhoneNumberPairs
-      .map((p) => `('${p.name}', '${p.phoneNumber}')`)
-      .join(',')});
-  `);
+    WHERE (name, phone_number) IN (${placeholders});
+    `,
+      params,
+    );
     return rawPatients.map((raw) =>
       this.patientRepository.create({
         id: parseInt(raw.id),

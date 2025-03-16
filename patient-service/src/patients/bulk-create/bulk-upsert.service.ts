@@ -6,7 +6,11 @@ import { Patient } from '../entities/patient.entity';
 import { UploadPatientsSuccessResponse } from '../interfaces/upload.patients.response';
 import { RAW_PATIENT_PROPERTIES } from './constants';
 import { RecordValidatorService } from './record-validator/record-validator.service';
-import { UpsertDecisionService } from './upsert-decision/upsert-decision.service';
+import {
+  InsertingPatientEntity,
+  UpdatingPatientEntity,
+  UpsertDecisionService,
+} from './upsert-decision/upsert-decision.service';
 import { XlsxHandlerService } from './xlsx-handler/xlsx-handler.service';
 
 @Injectable()
@@ -56,8 +60,8 @@ export class BulkUpsertService {
     toUpdateEntities,
     toInsertEntities,
   }: {
-    toUpdateEntities: Partial<Patient>[];
-    toInsertEntities: Partial<Patient>[];
+    toUpdateEntities: UpdatingPatientEntity[];
+    toInsertEntities: InsertingPatientEntity[];
   }) {
     await this.patientRepository.manager.transaction(async (manager) => {
       await this.executeBatch({
@@ -103,35 +107,71 @@ export class BulkUpsertService {
     batch,
     manager,
   }: {
-    batch: Partial<Patient>[];
+    batch: Pick<
+      Patient,
+      | 'id'
+      | 'address'
+      | 'memo'
+      | 'chartNumber'
+      | 'residentRegistrationNumber'
+      | 'phoneNumber'
+      | 'name'
+    >[];
     manager: EntityManager;
   }) {
-    return manager.query(`
+    if (batch.length === 0) {
+      return;
+    }
+
+    const updateParams: (string | number | null)[] = [];
+    const setClauses: { column: string; clause: string }[] = [];
+
+    const updatableFields = [
+      'address',
+      'memo',
+      'chart_number',
+      'resident_registration_number',
+    ];
+
+    updatableFields.forEach((column) => {
+      const cases = batch.map(() => `WHEN ? THEN ?`).join(' ');
+      setClauses.push({ column, clause: `CASE id ${cases} END` });
+
+      batch.forEach((p) => {
+        const id = p.id;
+        let value = null;
+        switch (column) {
+          case 'address':
+            value = p.address ?? null;
+            break;
+          case 'memo':
+            value = p.memo ?? null;
+            break;
+          case 'chart_number':
+            value = p.chartNumber ?? '';
+            break;
+          case 'resident_registration_number':
+            value = p.residentRegistrationNumber ?? null;
+            break;
+          default:
+        }
+        updateParams.push(id, value);
+      });
+    });
+
+    // Extract patient IDs for the WHERE clause
+    const ids = batch.map((p) => p.id);
+    updateParams.push(...ids);
+
+    // Construct final update query
+    const updateQuery = `
       UPDATE patients
       SET 
-        address = CASE id ${batch
-          .map(
-            (p) => `WHEN ${p.id} THEN ${p.address ? `'${p.address}'` : 'NULL'}`,
-          )
-          .join(' ')}
-        END,
-        memo = CASE id ${batch
-          .map((p) => `WHEN ${p.id} THEN ${p.memo ? `'${p.memo}'` : 'NULL'}`)
-          .join(' ')}
-        END,
-        chart_number = CASE id ${batch
-          .map(
-            (p) =>
-              `WHEN ${p.id} THEN ${p.chartNumber ? `'${p.chartNumber}'` : "''"}`,
-          )
-          .join(' ')}
-        END,
-        resident_registration_number = CASE id ${batch
-          .map((p) => `WHEN ${p.id} THEN '${p.residentRegistrationNumber}'`)
-          .join(' ')}
-        END
-      WHERE id IN (${batch.map((p) => p.id).join(',')});
-            `);
+        ${setClauses.map(({ column, clause }) => `${column} = ${clause}`).join(', ')}
+      WHERE id IN (${ids.map(() => '?').join(', ')});
+    `;
+
+    return manager.query(updateQuery, updateParams);
   }
 
   private async insertBulkPatients({
