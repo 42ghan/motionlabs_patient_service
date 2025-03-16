@@ -1,3 +1,4 @@
+import { DateToMilliTransformer } from './../../entities/transformers/date-to-date-time.transformer';
 import {
   Column,
   CreateDateColumn,
@@ -59,12 +60,14 @@ export class Patient {
     name: 'created_at',
     type: 'timestamp',
     update: false,
+    transformer: new DateToMilliTransformer(),
   })
   createdAt!: Date;
 
   @UpdateDateColumn({
     name: 'updated_at',
     type: 'timestamp',
+    transformer: new DateToMilliTransformer(),
   })
   updatedAt!: Date;
 }
