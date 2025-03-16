@@ -20,15 +20,11 @@ describe('XlsxHandlerService', () => {
 
   describe('transformFileBufferToWorkBook', () => {
     it('should transform buffer to workbook', () => {
-      // Create a simple Excel workbook
       const wb = XLSX.utils.book_new();
       const ws = XLSX.utils.aoa_to_sheet([['이름', '전화번호']]);
       XLSX.utils.book_append_sheet(wb, ws, 'Sheet1');
-
-      // Convert to buffer
       const buffer = XLSX.write(wb, { type: 'buffer' });
 
-      // Test the transformation
       const result = service.transformFileBufferToWorkBook({
         fileBuffer: buffer,
       });
@@ -37,13 +33,39 @@ describe('XlsxHandlerService', () => {
       expect(result.SheetNames).toContain('Sheet1');
       expect(result.Sheets['Sheet1']).toBeDefined();
     });
+
+    it('should transform buffer with multiple sheets', () => {
+      const wb = XLSX.utils.book_new();
+      const ws1 = XLSX.utils.aoa_to_sheet([['이름', '전화번호']]);
+      const ws2 = XLSX.utils.aoa_to_sheet([['이름', '전화번호']]);
+      XLSX.utils.book_append_sheet(wb, ws1, 'Sheet1');
+      XLSX.utils.book_append_sheet(wb, ws2, 'Sheet2');
+      const buffer = XLSX.write(wb, { type: 'buffer' });
+
+      const result = service.transformFileBufferToWorkBook({
+        fileBuffer: buffer,
+      });
+
+      expect(result.SheetNames).toHaveLength(2);
+      expect(result.SheetNames).toContain('Sheet1');
+      expect(result.SheetNames).toContain('Sheet2');
+    });
   });
 
   describe('validateSheets', () => {
     it('should validate sheets with correct column names', () => {
-      const requiredColumnNames = ['이름', '전화번호'] as const;
+      const requiredColumnNames = [
+        '이름',
+        '전화번호',
+        '주민등록번호',
+        '차트번호',
+        '주소',
+        '메모',
+      ] as const;
       const wb = XLSX.utils.book_new();
-      const ws = XLSX.utils.aoa_to_sheet([['이름', '전화번호']]);
+      const ws = XLSX.utils.aoa_to_sheet([
+        ['이름', '전화번호', '주민등록번호', '차트번호', '주소', '메모'],
+      ]);
       XLSX.utils.book_append_sheet(wb, ws, 'Sheet1');
 
       const result = service.validateSheets({
@@ -57,9 +79,9 @@ describe('XlsxHandlerService', () => {
     });
 
     it('should throw error for missing required columns', () => {
-      const requiredColumnNames = ['이름', '전화번호'] as const;
+      const requiredColumnNames = ['이름', '전화번호', '주민등록번호'] as const;
       const wb = XLSX.utils.book_new();
-      const ws = XLSX.utils.aoa_to_sheet([['이름', '잘못된컬럼']]); // Wrong column name
+      const ws = XLSX.utils.aoa_to_sheet([['이름', '잘못된컬럼']]);
       XLSX.utils.book_append_sheet(wb, ws, 'Sheet1');
 
       expect(() =>
@@ -84,11 +106,15 @@ describe('XlsxHandlerService', () => {
       ).toThrow('정상적이지 않은 엑셀 파일입니다.');
     });
 
-    it('should validate multiple sheets', () => {
-      const requiredColumnNames = ['이름', '전화번호'] as const;
+    it('should validate multiple sheets with all required columns', () => {
+      const requiredColumnNames = ['이름', '전화번호', '주민등록번호'] as const;
       const wb = XLSX.utils.book_new();
-      const ws1 = XLSX.utils.aoa_to_sheet([['이름', '전화번호']]);
-      const ws2 = XLSX.utils.aoa_to_sheet([['이름', '전화번호']]);
+      const ws1 = XLSX.utils.aoa_to_sheet([
+        ['이름', '전화번호', '주민등록번호'],
+      ]);
+      const ws2 = XLSX.utils.aoa_to_sheet([
+        ['이름', '전화번호', '주민등록번호'],
+      ]);
       XLSX.utils.book_append_sheet(wb, ws1, 'Sheet1');
       XLSX.utils.book_append_sheet(wb, ws2, 'Sheet2');
 
@@ -102,54 +128,65 @@ describe('XlsxHandlerService', () => {
       expect(result[0]).toBeDefined();
       expect(result[1]).toBeDefined();
     });
+
+    it('should throw error if any sheet is missing required columns', () => {
+      const requiredColumnNames = ['이름', '전화번호', '주민등록번호'] as const;
+      const wb = XLSX.utils.book_new();
+      const ws1 = XLSX.utils.aoa_to_sheet([
+        ['이름', '전화번호', '주민등록번호'],
+      ]);
+      const ws2 = XLSX.utils.aoa_to_sheet([['이름', '전화번호']]); // Missing column
+      XLSX.utils.book_append_sheet(wb, ws1, 'Sheet1');
+      XLSX.utils.book_append_sheet(wb, ws2, 'Sheet2');
+
+      expect(() =>
+        service.validateSheets({
+          requiredColumnNames,
+          sheetNames: wb.SheetNames,
+          sheets: wb.Sheets,
+        }),
+      ).toThrow('유효하지 않은 엑셀 파일입니다.');
+    });
   });
 
   describe('transformSheetsToJsonRowStreams', () => {
     it('should transform sheets to json row streams', () => {
-      // Create test worksheet with sample data
       const ws = XLSX.utils.aoa_to_sheet([
-        ['이름', '전화번호'],
-        ['홍길동', '010-1234-5678'],
-        ['김철수', '010-8765-4321'],
+        ['이름', '전화번호', '주민등록번호'],
+        ['홍길동', '010-1234-5678', '900101-1******'],
+        ['김철수', '010-8765-4321', '910202-2******'],
       ]);
 
-      const streams = service.transformSheetsToJsonRowStreams({
-        sheets: [ws],
-      });
+      const streams = service.transformSheetsToJsonRowStreams({ sheets: [ws] });
 
       expect(streams).toHaveLength(1);
       expect(streams[0]).toBeInstanceOf(Readable);
     });
 
-    it('should handle multiple sheets', () => {
-      const ws1 = XLSX.utils.aoa_to_sheet([
-        ['이름', '전화번호'],
-        ['홍길동', '010-1234-5678'],
+    it('should handle empty sheets', () => {
+      const ws = XLSX.utils.aoa_to_sheet([
+        ['이름', '전화번호', '주민등록번호'],
       ]);
-      const ws2 = XLSX.utils.aoa_to_sheet([
-        ['이름', '전화번호'],
-        ['김철수', '010-8765-4321'],
-      ]);
+      const streams = service.transformSheetsToJsonRowStreams({ sheets: [ws] });
 
-      const streams = service.transformSheetsToJsonRowStreams({
-        sheets: [ws1, ws2],
-      });
-
-      expect(streams).toHaveLength(2);
+      expect(streams).toHaveLength(1);
       expect(streams[0]).toBeInstanceOf(Readable);
-      expect(streams[1]).toBeInstanceOf(Readable);
     });
 
-    it('should create streams with correct data', async () => {
+    it('should create streams with correct data structure', async () => {
       const ws = XLSX.utils.aoa_to_sheet([
-        ['이름', '전화번호'],
-        ['홍길동', '010-1234-5678'],
+        ['이름', '전화번호', '주민등록번호', '차트번호', '주소', '메모'],
+        [
+          '홍길동',
+          '010-1234-5678',
+          '900101-1******',
+          '12345',
+          '서울시',
+          '메모1',
+        ],
       ]);
 
-      const streams = service.transformSheetsToJsonRowStreams({
-        sheets: [ws],
-      });
-
+      const streams = service.transformSheetsToJsonRowStreams({ sheets: [ws] });
       const stream = streams[0];
       const chunks: any[] = [];
 
@@ -161,7 +198,35 @@ describe('XlsxHandlerService', () => {
       expect(chunks[0]).toEqual({
         이름: '홍길동',
         전화번호: '010-1234-5678',
+        주민등록번호: '900101-1******',
+        차트번호: '12345',
+        주소: '서울시',
+        메모: '메모1',
       });
+    });
+
+    it('should handle multiple rows in a sheet', async () => {
+      const ws = XLSX.utils.aoa_to_sheet([
+        ['이름', '전화번호', '주민등록번호'],
+        ['홍길동', '010-1234-5678', '900101-1******'],
+        ['김철수', '010-8765-4321', '910202-2******'],
+        ['이영희', '010-5555-5555', '920303-2******'],
+      ]);
+
+      const streams = service.transformSheetsToJsonRowStreams({ sheets: [ws] });
+      const stream = streams[0];
+      const chunks: any[] = [];
+
+      for await (const chunk of stream) {
+        chunks.push(chunk);
+      }
+
+      expect(chunks).toHaveLength(3);
+      expect(chunks.map((chunk) => chunk.이름)).toEqual([
+        '홍길동',
+        '김철수',
+        '이영희',
+      ]);
     });
   });
 });

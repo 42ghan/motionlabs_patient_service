@@ -1,3 +1,4 @@
+import { Response } from 'express';
 import {
   ArgumentsHost,
   Catch,
@@ -5,7 +6,6 @@ import {
   HttpException,
   HttpStatus,
 } from '@nestjs/common';
-import { Response } from 'express';
 
 @Catch()
 export class UploadExceptionFilter implements ExceptionFilter {

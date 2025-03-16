@@ -1,11 +1,12 @@
 import { Module } from '@nestjs/common';
-import { PatientsService } from './patients.service';
-import { PatientsController } from './patients.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { BulkUpsertModule } from './bulk-create/bulk-upsert.module';
 import { Patient } from './entities/patient.entity';
+import { PatientsController } from './patients.controller';
+import { PatientsService } from './patients.service';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Patient])],
+  imports: [TypeOrmModule.forFeature([Patient]), BulkUpsertModule],
   controllers: [PatientsController],
   providers: [PatientsService],
 })

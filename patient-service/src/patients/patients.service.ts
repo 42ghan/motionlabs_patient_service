@@ -1,10 +1,33 @@
+import { Repository } from 'typeorm';
 import { Injectable } from '@nestjs/common';
-import { CreatePatientDto } from './dto/create-patient.dto';
+import { InjectRepository } from '@nestjs/typeorm';
+import { BulkUpsertService } from './bulk-create/bulk-upsert.service';
+import { Patient } from './entities/patient.entity';
+import { UploadPatientsSuccessResponse } from './interfaces/upload.patients.response';
 
 @Injectable()
 export class PatientsService {
-  handleUploadedFileToBulkCreate(createPatientDto: CreatePatientDto) {
-    return 'This action adds a new patient';
+  constructor(
+    @InjectRepository(Patient)
+    private readonly patientRepository: Repository<Patient>,
+    private readonly bulkUpsertService: BulkUpsertService,
+  ) {}
+
+  async handleUploadedFileToBulkCreate({
+    uploadedFile,
+  }: {
+    uploadedFile: Express.Multer.File;
+  }): Promise<UploadPatientsSuccessResponse> {
+    const { processedCount, failedCount } =
+      await this.bulkUpsertService.bulkUpsertPatientsFromXlsxFile({
+        fileBuffer: uploadedFile.buffer,
+      });
+
+    return {
+      success: true,
+      processedCount,
+      failedCount,
+    };
   }
 
   findAll() {

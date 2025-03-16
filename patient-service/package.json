@@ -2,7 +2,7 @@
   "name": "motionlabs_assignment",
   "version": "0.0.1",
   "description": "",
-  "author": "",
+  "author": "Daniel Han",
   "private": true,
   "license": "UNLICENSED",
   "engines": {
@@ -19,8 +19,7 @@
     "test": "yarn jest",
     "test:watch": "yarn jest --watch",
     "test:cov": "yarn jest --coverage",
-    "test:debug": "yarn node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-    "test:e2e": "yarn jest --config ./test/jest-e2e.json"
+    "test:debug": "yarn node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand"
   },
   "dependencies": {
     "@nestjs/common": "^11.0.11",

@@ -1,5 +1,4 @@
-import { FileTypeValidator } from '@nestjs/common';
-import { MaxFileSizeValidator } from '@nestjs/common';
+import { FileTypeValidator, MaxFileSizeValidator } from '@nestjs/common';
 import { FileExtensionValidator } from './file-extension.validator';
 
 export const uploadFilePipeValidators = [

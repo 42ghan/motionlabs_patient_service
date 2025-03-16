@@ -1,4 +1,3 @@
-import { DateToMilliTransformer } from './../../entities/transformers/date-to-date-time.transformer';
 import {
   Column,
   CreateDateColumn,
@@ -6,6 +5,7 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
+import { DateToMilliTransformer } from '../../entities/transformers/date-to-date-time.transformer';
 
 @Entity('patients')
 export class Patient {
