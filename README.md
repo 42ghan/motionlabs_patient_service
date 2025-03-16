@@ -213,8 +213,8 @@ CREATE INDEX idx_patients_name_phone ON patients (name, phone_number);
   - 배치로 실행 시 효과.
     - 각 배치가 작은 단위로 실행되어 메모리 부담 감소.
     - 빠른 커밋(COMMIT) 가능, 트랜잭션이 길어지지 않음.
-  - 가장 효과가 좋은 방식이었음.
-    - 50,000 record 를 한번에 `INSERT INTO ... VALUES (...)` 로 저장하는 방식의 소요시간 : ~70s
+  - 결과 비교
+    - 50,000 record 를 한번에 `INSERT INTO ... VALUES (...)` 로 저장하는 방식의 소요시간 : ~60s
     - 배치로 저장 : ~1s
 
 - 데이터 조회 요청 처리 시, 페이지네이션 적용으로 대량 데이터 조회 시 메모리 사용량 제한.
