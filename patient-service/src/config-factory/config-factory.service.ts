@@ -8,15 +8,17 @@ export class ConfigFactoryService {
   constructor(private readonly configService: ConfigService) {}
 
   get mySqlConfig(): TypeOrmModuleOptions {
-    if (!this.configService.get('MYSQL_URL')) {
+    const mysqlUrl = this.configService.get('MYSQL_URL');
+    if (!mysqlUrl) {
       throw new Error('MYSQL_URL is not set');
     }
     return {
       type: 'mysql',
-      url: this.configService.get('MYSQL_URL'),
+      url: mysqlUrl,
       timezone: '+09:00',
       charset: 'utf8mb4',
       entities: [Patient],
+      ssl: false,
     };
   }
 }

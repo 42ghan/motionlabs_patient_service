@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
 import { BulkUpsertService } from './bulk-create/bulk-upsert.service';
-import { PatientsListQuery } from './interfaces/list.patiens.query';
 import { PatientsListSuccessResponse } from './interfaces/list.patients.response';
 import { UploadPatientsSuccessResponse } from './interfaces/upload.patients.response';
 import { ScanService } from './scan/scan.service';
@@ -29,9 +28,10 @@ export class PatientsService {
     };
   }
 
-  async handleScanWithPagination(
-    params: PatientsListQuery,
-  ): Promise<PatientsListSuccessResponse> {
+  async handleScanWithPagination(params: {
+    page: number;
+    limit: number;
+  }): Promise<PatientsListSuccessResponse> {
     return this.scanService.scanWithPagination(params);
   }
 }

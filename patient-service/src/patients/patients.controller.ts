@@ -1,8 +1,11 @@
 import {
+  BadRequestException,
   Controller,
+  DefaultValuePipe,
   Get,
   HttpCode,
   ParseFilePipe,
+  ParseIntPipe,
   Post,
   Query,
   UploadedFile,
@@ -21,14 +24,13 @@ import {
 } from '@nestjs/swagger';
 import { UploadExceptionFilter } from './filters/upload-exception.filter';
 import { PatientsListSuccessResponse } from './interfaces/list.patients.response';
-import { PatientsService } from './patients.service';
-import { uploadFilePipeValidators } from './pipes/validators';
 import {
   UploadPatientsBadRequestErrorResponse,
   UploadPatientsInternalServerErrorResponse,
   UploadPatientsSuccessResponse,
 } from './interfaces/upload.patients.response';
-import { PatientsListQuery } from './interfaces/list.patiens.query';
+import { PatientsService } from './patients.service';
+import { uploadFilePipeValidators } from './pipes/validators';
 
 @Controller('patients')
 export class PatientsController {
@@ -93,9 +95,19 @@ export class PatientsController {
   })
   @ApiExtraModels(PatientsListSuccessResponse)
   @Get()
-  findWithPagination(@Query() query: PatientsListQuery) {
+  findWithPagination(
+    @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
+    @Query('limit', new DefaultValuePipe(20), ParseIntPipe) limit: number,
+  ) {
+    if (limit && (limit > 100 || limit < 1)) {
+      throw new BadRequestException('limit은 1 이상 100 이하여야 합니다.');
+    }
+    if (page && page < 1) {
+      throw new BadRequestException('page는 1 이상이어야 합니다.');
+    }
     return this.patientsService.handleScanWithPagination({
-      ...query,
+      page,
+      limit,
     });
   }
 }

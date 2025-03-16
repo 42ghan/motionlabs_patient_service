@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { PatientsListQuery } from '../interfaces/list.patiens.query';
 import {
   PatientsListSuccessResponse,
   PatientsListItem,
@@ -16,15 +15,18 @@ export class ScanService {
   ) {}
 
   async scanWithPagination({
-    page = 1,
-    limit = 20,
-  }: PatientsListQuery): Promise<PatientsListSuccessResponse> {
+    page,
+    limit,
+  }: {
+    page: number;
+    limit: number;
+  }): Promise<PatientsListSuccessResponse> {
     const safeLimit = Math.min(limit, 100); // Prevent very large requests
     const validPage = Math.max(1, page);
     const offset = (validPage - 1) * safeLimit;
 
     const [patients, total] = await this.patientRepository.findAndCount({
-      order: { createdAt: 'DESC' },
+      order: { id: 'DESC' },
       skip: offset,
       take: safeLimit,
     });
@@ -47,8 +49,8 @@ export class ScanService {
       id: patient.id,
       chartNumber: patient.chartNumber ? patient.chartNumber : undefined,
       name: patient.name,
-      memo: patient.memo,
-      address: patient.address,
+      memo: patient.memo ?? undefined,
+      address: patient.address ?? undefined,
       phoneNumber: patient.phoneNumber,
       residentRegistrationNumber: patient.residentRegistrationNumber,
       createdAt: patient.createdAt.toISO()!,

@@ -1,4 +1,4 @@
-import { Patient } from 'src/patients/entities/patient.entity';
+import { Patient } from '../../entities/patient.entity';
 import { Readable } from 'stream';
 import { Injectable } from '@nestjs/common';
 import { RAW_PATIENT_PROPERTIES } from '../constants';
