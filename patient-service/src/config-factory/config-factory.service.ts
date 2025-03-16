@@ -18,7 +18,6 @@ export class ConfigFactoryService {
       timezone: '+09:00',
       charset: 'utf8mb4',
       entities: [Patient],
-      ssl: false,
     };
   }
 }

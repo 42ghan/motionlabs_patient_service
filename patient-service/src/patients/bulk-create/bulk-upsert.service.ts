@@ -1,5 +1,5 @@
 import { Readable } from 'stream';
-import { EntityManager, InsertResult, Repository } from 'typeorm';
+import { EntityManager, Repository } from 'typeorm';
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Patient } from '../entities/patient.entity';
@@ -70,15 +70,12 @@ export class BulkUpsertService {
           await this.updateBulkPatients({ batch, manager });
         },
       });
-      const promises: Promise<InsertResult>[] = [];
       await this.executeBatch({
         targets: toInsertEntities,
         executeFn: async (batch) => {
-          promises.push(this.insertBulkPatients({ batch, manager }));
+          await this.insertBulkPatients({ batch, manager });
         },
       });
-      await Promise.all(promises);
-      return;
     });
   }
 

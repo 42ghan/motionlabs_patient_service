@@ -104,6 +104,16 @@ export class RecordValidatorService {
       return false;
     }
 
+    const address = rowWithTrimmedValues['주소'];
+    if (address && address.length > 255) {
+      return false;
+    }
+
+    const memo = rowWithTrimmedValues['메모'];
+    if (memo && memo.length > 255) {
+      return false;
+    }
+
     return true;
   }
 

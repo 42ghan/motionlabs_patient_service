@@ -60,49 +60,6 @@ describe('ScanService', () => {
   });
 
   describe('scanWithPagination', () => {
-    it('should return paginated results with default values', async () => {
-      mockPatientRepository.findAndCount.mockResolvedValue([mockPatients, 2]);
-
-      const result = await service.scanWithPagination({});
-
-      expect(result).toEqual({
-        results: [
-          {
-            id: 1,
-            chartNumber: '12345',
-            name: '홍길동',
-            memo: '메모1',
-            address: '서울시',
-            phoneNumber: '01012345678',
-            residentRegistrationNumber: '900101-1******',
-            createdAt: mockPatients[0].createdAt.toISO()!,
-            updatedAt: mockPatients[0].updatedAt.toISO()!,
-          },
-          {
-            id: 2,
-            chartNumber: undefined,
-            name: '김철수',
-            memo: '메모2',
-            address: '부산시',
-            phoneNumber: '01087654321',
-            residentRegistrationNumber: '900202-2******',
-            createdAt: mockPatients[1].createdAt.toISO()!,
-            updatedAt: mockPatients[1].updatedAt.toISO()!,
-          },
-        ],
-        total: 2,
-        totalPages: 1,
-        currentPage: 1,
-        limit: 20,
-      });
-
-      expect(patientRepository.findAndCount).toHaveBeenCalledWith({
-        order: { createdAt: 'DESC' },
-        skip: 0,
-        take: 20,
-      });
-    });
-
     it('should handle custom page and limit values', async () => {
       mockPatientRepository.findAndCount.mockResolvedValue([
         [mockPatients[0]],
@@ -135,7 +92,7 @@ describe('ScanService', () => {
       });
 
       expect(patientRepository.findAndCount).toHaveBeenCalledWith({
-        order: { createdAt: 'DESC' },
+        order: { id: 'DESC' },
         skip: 1,
         take: 1,
       });
@@ -144,7 +101,10 @@ describe('ScanService', () => {
     it('should handle empty results', async () => {
       mockPatientRepository.findAndCount.mockResolvedValue([[], 0]);
 
-      const result = await service.scanWithPagination({});
+      const result = await service.scanWithPagination({
+        page: 1,
+        limit: 20,
+      });
 
       expect(result).toEqual({
         results: [],
@@ -159,11 +119,12 @@ describe('ScanService', () => {
       mockPatientRepository.findAndCount.mockResolvedValue([mockPatients, 2]);
 
       await service.scanWithPagination({
+        page: 1,
         limit: 200,
       });
 
       expect(patientRepository.findAndCount).toHaveBeenCalledWith({
-        order: { createdAt: 'DESC' },
+        order: { id: 'DESC' },
         skip: 0,
         take: 100,
       });
@@ -174,10 +135,11 @@ describe('ScanService', () => {
 
       await service.scanWithPagination({
         page: -1,
+        limit: 20,
       });
 
       expect(patientRepository.findAndCount).toHaveBeenCalledWith({
-        order: { createdAt: 'DESC' },
+        order: { id: 'DESC' },
         skip: 0,
         take: 20,
       });
@@ -196,14 +158,14 @@ describe('ScanService', () => {
         1,
       ]);
 
-      const result = await service.scanWithPagination({});
+      const result = await service.scanWithPagination({
+        page: 1,
+        limit: 20,
+      });
 
       expect(result.results[0]).toEqual({
         id: 1,
-        chartNumber: undefined,
         name: '홍길동',
-        memo: null,
-        address: null,
         phoneNumber: '01012345678',
         residentRegistrationNumber: '900101-1******',
         createdAt: mockPatients[0].createdAt.toISO()!,

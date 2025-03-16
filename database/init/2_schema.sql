@@ -14,3 +14,4 @@ CREATE TABLE IF NOT EXISTS patients (
 );
 
 CREATE UNIQUE INDEX idx_patients_unique ON patients (name, phone_number, chart_number);
+CREATE INDEX idx_patients_name_phone ON patients (name, phone_number);
