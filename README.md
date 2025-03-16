@@ -113,12 +113,12 @@ PatientsService
      - 첫번째 인자로 업로드 할 파일 path 전달 필수
 
    ```bash
-   bash ./test_file_upload.sh ./patient_data.xlsx
+   bash ./3_test_file_upload.sh ./patient_data.xlsx
    ```
 
    - upload api response time 확인.
      - 위 command 실행 후 terminal 에 출력되는 response time
-     - `docker compose logs` 실행 시 nestjs 서버 로그로 response time 확인 가능
+     - `docker compose logs patient-service` 실행 시 nestjs 서버 로그로 response time 확인 가능
    - http://localhost:3001/api 에서 Swagger 확인 가능 + 조회 API 테스트 가능
 
 4. 로컬에서 서버 실행
