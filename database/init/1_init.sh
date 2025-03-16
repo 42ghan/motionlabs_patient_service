@@ -2,6 +2,7 @@
 
 set -e
 
+# Execute SQL commands
 mysql -u root -p${MYSQL_ROOT_PASSWORD} <<EOF
 
 /* Create user */
@@ -18,4 +19,6 @@ FLUSH PRIVILEGES;
 
 EOF
 
+# Print success message to stdout and to docker logs
+echo "Database and user created successfully" >&2
 echo "Database and user created successfully"
