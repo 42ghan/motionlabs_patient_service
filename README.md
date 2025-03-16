@@ -61,7 +61,6 @@ PatientsService
     i. **XlsxHandlerService**
 
     - Excel 파일 파싱 및 데이터 추출
-    - 스트림 기반 처리로 메모리 효율성 확보
 
     ii. **RecordValidatorService**
 
@@ -83,70 +82,69 @@ PatientsService
 
 ## 설치 및 실행 방법
 
-0. 필수 요구사항
+### 0. 필수 요구사항
 
 - Docker
 - Node.js 22 이상
-- yarn berry
 
-1. Docker Compose up 으로 db set up & 서비스 실행
+### 1. Docker Compose up 으로 db set up & 서비스 실행
 
-   - 프로젝트 root 에서 1_set_up_and_run.sh 실행
+- 프로젝트 root 에서 1_set_up_and_run.sh 실행
 
-   ```bash
-   bash ./1_set_up_and_run.sh
-   ```
+```bash
+bash ./1_set_up_and_run.sh
+```
 
-2. test 실행
+### 2. test 실행
 
-   - 프로젝트 root 에서 2_run_tests.sh 실행
+- 프로젝트 root 에서 2_run_tests.sh 실행
 
-   ```bash
-   bash ./2_run_tests.sh
-   ```
+```bash
+bash ./2_run_tests.sh
+```
 
-3. 테스트 데이터 업로드 및 조회 API 테스트
+### 3. 테스트 데이터 업로드 및 조회 API 테스트
 
-   - 1_set_up_and_run.sh 실행이 반드시 선행되어야 함
+- 1_set_up_and_run.sh 실행이 반드시 선행되어야 함
 
-   - 프로젝트 root 에서 3_test_file_upload 실행
-     - 첫번째 인자로 업로드 할 파일 path 전달 필수
+- 프로젝트 root 에서 3_test_file_upload 실행
+  - 첫번째 인자로 업로드 할 파일 path 전달 필수
 
-   ```bash
-   bash ./3_test_file_upload.sh ./patient_data.xlsx
-   ```
+```bash
+bash ./3_test_file_upload.sh ./patient_data.xlsx
+```
 
-   - upload api response time 확인.
-     - 위 command 실행 후 terminal 에 출력되는 response time
-     - `docker compose logs patient-service` 실행 시 nestjs 서버 로그로 response time 확인 가능
-   - http://localhost:3001/api 에서 Swagger 확인 가능 + 조회 API 테스트 가능
+- upload api response time 확인.
+  - 위 command 실행 후 terminal 에 출력되는 response time
+  - `docker compose logs patient-service` 실행 시 nestjs 서버 로그로 response time 확인 가능
+- http://localhost:3001/api 에서 Swagger 확인 가능 + 조회 API 테스트 가능
 
-4. 로컬에서 서버 실행
+### 4. 로컬에서 서버 실행
 
-   - docker compose service 들이 실행 중인 상태에서 아래 스텝 순서대로 실행
-   - patient-service/.env 에서 `MYSQL_URL` 로컬 테스트용으로 수정
+- docker compose service 들이 실행 중인 상태에서 아래 스텝 순서대로 실행
+- patient-service/.env 에서 `MYSQL_URL` 로컬 테스트용으로 수정
 
-   ```bash
-   # 디렉토리 이동
-   cd patient-service
+```bash
+# 디렉토리 이동
+cd patient-service
 
-   # yarn berry 사용할 수 있도록 설정
-   corepack enable
+# yarn berry 사용할 수 있도록 설정
+corepack enable
 
-   # 의존성 설치
-   yarn install
+# 의존성 설치
+yarn install
 
-   # 실행
-   yarn run start
-   ```
+# 실행
+yarn run start
+```
 
-5. Tear down
+### 5. Tear down
 
-   - 프로젝트 root 에서 tear_down.sh 실행
+- 프로젝트 root 에서 tear_down.sh 실행
 
-   ```bash
-   bash ./tear_down.sh
-   ```
+```bash
+bash ./tear_down.sh
+```
 
 ## API 문서
 
